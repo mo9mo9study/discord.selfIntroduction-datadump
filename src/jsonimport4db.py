@@ -12,7 +12,7 @@ studymembers=[]
 session = Selfintroduction.session()
 engine = get_db_engine()
 
-with open("after-introduction.json", "r", encoding="utf-8") as f:
+with open("src/after-introduction.json", "r", encoding="utf-8") as f:
     update_json = json.load(f)
 
 pd_j = pd.json_normalize(update_json["data"])
@@ -29,5 +29,6 @@ for i in pd_j.itertuples():
         after_study = i.studyingnow,
         sendmsg_id = i.msgID,
     ))
+print(studymembers)
 session.bulk_save_objects(studymembers)
 session.commit()

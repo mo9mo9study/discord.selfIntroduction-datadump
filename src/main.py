@@ -8,8 +8,8 @@ class WriteJson(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.OTHERS_SERVER_ID = 0  # othresサーバーID
-        self.DB_SERVER_ID = 0  # DBサーバーID
+        self.OTHERS_SERVER_ID = ""  # 不要なデータを移動する先のdiscordギルドID
+        self.DB_SERVER_ID = ""  # 自己紹介データを保存していたDBギルドID
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -20,8 +20,9 @@ class WriteJson(commands.Cog):
     @commands.command()
     async def jsons(self, ctx):
         number = 0
-        with open("introduction.json", "r", encoding="utf-8") as f:
-            update_json = json.load(f, object_pairs_hook=OrderedDict)
+        with open("src/introduction.json", "r", encoding="utf-8") as f:
+            # update_json = json.load(f, object_pairs_hook=OrderedDict)
+            update_json = json.load(f)
         update_json["data"] = []
         for channel in self.DB_SERVER.text_channels:
             messages = await channel.history(limit=None).flatten()
@@ -39,21 +40,21 @@ class WriteJson(commands.Cog):
                 update_json["data"][number]["studyingnow"] = messages[5]
                 update_json["data"][number]["msgID"]       = messages[6]
                 number += 1
-            else:  # 自己紹介が不完全なchannel(別サーバー)
-                tp_channel = await self.OTHERS_SERVER.create_text_channel(name=messages[0], topic=channel.name)
-                try:
-                    await tp_channel.send(messages[0])
-                    await tp_channel.send(messages[1])
-                    await tp_channel.send(messages[2])
-                    await tp_channel.send(messages[3])
-                    await tp_channel.send(messages[4])
-                    await tp_channel.send(messages[5])
-                except IndexError:
-                    pass
+            # else:  # 自己紹介が不完全なchannel(別サーバー)
+            #     tp_channel = await self.OTHERS_SERVER.create_text_channel(name=messages[0], topic=channel.name)
+            #     try:
+            #         await tp_channel.send(messages[0])
+            #         await tp_channel.send(messages[1])
+            #         await tp_channel.send(messages[2])
+            #         await tp_channel.send(messages[3])
+            #         await tp_channel.send(messages[4])
+            #         await tp_channel.send(messages[5])
+            #     except IndexError:
+            #         pass
         else:
-            with open("introduction.json", "w", encoding="utf-8") as f:
-                json.dump(update_json, f, indent=2, ensure_ascii=False)
-                print("saved")
+            with open("src/after-introduction.json", "w", encoding="utf-8") as f:
+                json.dump(update_json, f, indent=4, ensure_ascii=False)
+                print("[INFO] Script end. Saved json data ")
 
     # バグで作成されたチャンネルを一括削除
     @commands.command()
